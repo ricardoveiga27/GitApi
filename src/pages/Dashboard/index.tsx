@@ -1,54 +1,67 @@
-import React from 'react';
+/* eslint-disable camelcase */
+import React, { useState, FormEvent } from 'react';
 import { FiChevronRight } from 'react-icons/fi';
+import api from '../../services/api';
 
 import logoImg from '../../assets/logo.svg';
 
 import { Title, Form, Repositories } from './styles';
+import Repository from '../Repository';
 
-const Dashboard: React.FC = () => (
-  <>
-    <img src={logoImg} alt="github explorer" />
-    <Title>Explore repositórios no Github</Title>
-    <Form>
-      <input placeholder="Digite o nome do repositório" />
-      <button type="submit">Pesquisar</button>
-    </Form>
-    <Repositories>
-      <a href="teste">
-        <img
-          src="https://avatars3.githubusercontent.com/u/48068247?s=460&u=dfb13f9207048643d2dc4d8e2a02ced8906378ff&v=4"
-          alt="Ricardo Veiga"
-        />
-        <div>
-          <strong>Ricardoveiga27</strong>
-          <p>kldkfhsdjkhfsdjhfsdfjh</p>
-        </div>
-        <FiChevronRight size={20} />
-      </a>
-      <a href="teste">
-        <img
-          src="https://avatars3.githubusercontent.com/u/48068247?s=460&u=dfb13f9207048643d2dc4d8e2a02ced8906378ff&v=4"
-          alt="Ricardo Veiga"
-        />
-        <div>
-          <strong>Ricardoveiga27</strong>
-          <p>kldkfhsdjkhfsdjhfsdfjh</p>
-        </div>
-        <FiChevronRight size={20} />
-      </a>
-      <a href="teste">
-        <img
-          src="https://avatars3.githubusercontent.com/u/48068247?s=460&u=dfb13f9207048643d2dc4d8e2a02ced8906378ff&v=4"
-          alt="Ricardo Veiga"
-        />
-        <div>
-          <strong>Ricardoveiga27</strong>
-          <p>kldkfhsdjkhfsdjhfsdfjh</p>
-        </div>
-        <FiChevronRight size={20} />
-      </a>
-    </Repositories>
-  </>
-);
+interface Repository {
+  full_name: string;
+  description: string;
+  owner: {
+    login: string;
+    avatar_url: string;
+  };
+}
 
+const Dashboard: React.FC = () => {
+  const [newRepo, setNewRepo] = useState('');
+  const [repositories, setRepositories] = useState<Repository[]>([]);
+
+  async function handleAddRepository(
+    event: FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+
+    const response = await api.get(`repos/${newRepo}`);
+
+    const repository = response.data;
+
+    setRepositories([...repositories, repository]);
+    setNewRepo('');
+  }
+
+  return (
+    <>
+      <img src={logoImg} alt="github explorer" />
+      <Title>Explore repositórios no Github</Title>
+      <Form onSubmit={handleAddRepository}>
+        <input
+          value={newRepo}
+          onChange={e => setNewRepo(e.target.value)}
+          placeholder="Digite o nome do repositório"
+        />
+        <button type="submit">Pesquisar</button>
+      </Form>
+      <Repositories>
+        {repositories.map(responsitory => (
+          <a key={responsitory.full_name} href="teste">
+            <img
+              src={responsitory.owner.avatar_url}
+              alt={responsitory.owner.login}
+            />
+            <div>
+              <strong>{responsitory.full_name}</strong>
+              <p>{responsitory.description}</p>
+            </div>
+            <FiChevronRight size={20} />
+          </a>
+        ))}
+      </Repositories>
+    </>
+  );
+};
 export default Dashboard;
