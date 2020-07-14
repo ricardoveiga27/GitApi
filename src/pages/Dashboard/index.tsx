@@ -6,8 +6,8 @@ import api from '../../services/api';
 
 import logoImg from '../../assets/logo.svg';
 
+// eslint-disable-next-line object-curly-newline
 import { Title, Form, Repositories, Error } from './styles';
-import Repository from '../Repository';
 
 interface Repository {
   full_name: string;
